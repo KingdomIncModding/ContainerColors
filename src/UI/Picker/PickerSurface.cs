@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace KingdomContainerColors
 {
-    public sealed class PickerSurface : MaskableGraphic, IPointerDownHandler, IDragHandler
+    public sealed class PickerSurface : MaskableGraphic, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         Color At(float x, float y)
         {
@@ -57,6 +57,8 @@ namespace KingdomContainerColors
             }
         }
 
+        IDisposable editScope;
+
         public void OnDrag(PointerEventData data)
         {
             if (data.button == PointerEventData.InputButton.Left)
@@ -65,8 +67,29 @@ namespace KingdomContainerColors
 
         public void OnPointerDown(PointerEventData data)
         {
+            if (data.button != PointerEventData.InputButton.Left)
+                return;
+            if (editScope == null)
+                editScope = UndoIntegration.OpenEditScope();
+            Select(data);
+        }
+
+        public void OnPointerUp(PointerEventData data)
+        {
             if (data.button == PointerEventData.InputButton.Left)
-                Select(data);
+                ReleaseScope();
+        }
+
+        protected override void OnDisable()
+        {
+            ReleaseScope();
+            base.OnDisable();
+        }
+
+        void ReleaseScope()
+        {
+            editScope?.Dispose();
+            editScope = null;
         }
 
         static void Quad(VertexHelper mesh, Rect r, Color bl, Color br, Color tr, Color tl)

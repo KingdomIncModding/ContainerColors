@@ -1,8 +1,8 @@
 # Custom Container Colors
 
-**Current release: 1.3.1 — for Kingdom Inc game version 1.0.14.**
+**Current release: 1.3.2 — for Kingdom Inc game version 1.0.14.**
 
-[GitHub releases](https://github.com/KingdomIncModding/ContainerColors/releases) · [Nexus Mods](https://www.nexusmods.com/kingdominc/mods/11) · Version 1.3.1
+[GitHub releases](https://github.com/KingdomIncModding/ContainerColors/releases) · [Nexus Mods](https://www.nexusmods.com/kingdominc/mods/11) · Version 1.3.2
 
 Choose any RGB color for containers and labels in Kingdom Inc with a live color picker, hex entry, opacity controls, and quick swatches. Labels keep their text editing and automatic sizing; containers keep their borders, resizing, locking, and anchoring.
 
@@ -29,7 +29,7 @@ The original five swatches restore native styles. **Original color** removes cus
 ## Installation
 
 1. Install [BepInEx 5 (Windows x64 Mono)](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.6).
-2. Install [Foundation](https://www.nexusmods.com/kingdominc/mods/18) (0.14.0 or newer).
+2. Install [Foundation](https://www.nexusmods.com/kingdominc/mods/18) (0.14.4 or newer).
 3. Extract the release ZIP into your Kingdom Inc game folder.
 4. Confirm the file is located at `BepInEx/plugins/ContainerColors/ContainerColors.dll`.
 5. Launch the game and research Container Colors in the Tech Tree!

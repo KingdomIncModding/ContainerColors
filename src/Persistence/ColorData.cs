@@ -25,7 +25,7 @@ namespace KingdomContainerColors
         static readonly ConditionalWeakTable<WorkspaceObject, global::KingdomContainerColors.ColorDataEntry> colors = new ConditionalWeakTable<WorkspaceObject, global::KingdomContainerColors.ColorDataEntry>();
         // Representative center colors of the native sprites, filled from the
         // installed palette by ColorRendering. These defaults also work before UI startup.
-        internal static readonly Color[] Native =
+        internal static Color[] Native =
         {
             new Color32(54, 45, 48, 255),
             new Color32(207, 169, 119, 255),
@@ -33,7 +33,7 @@ namespace KingdomContainerColors
             new Color32(82, 126, 70, 255),
             new Color32(65, 100, 147, 255)
         };
-        internal static readonly Color[] LabelNative =
+        internal static Color[] LabelNative =
         {
             new Color32(58, 44, 54, 255),
             new Color32(222, 189, 117, 255),
@@ -62,7 +62,17 @@ namespace KingdomContainerColors
         }
 
         internal static string Hex(Color32 color) => "#" + color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2");
-        internal static Color[] Palette(WorkspaceObject deco) => deco.Label != null ? LabelNative : Native;
+        internal static Color[] Palette(WorkspaceObject deco) => deco != null && deco.Label != null ? LabelNative : Native;
+        internal static int MaxStyleIndex(WorkspaceObject deco) => Math.Max(0, Palette(deco).Length - 1);
+        internal static void SetPalette(WorkspaceObject deco, Color[] sampled)
+        {
+            if (sampled == null || sampled.Length == 0)
+                return;
+            if (deco != null && deco.Label != null)
+                LabelNative = sampled;
+            else
+                Native = sampled;
+        }
         internal static bool ParseHex(string text, byte alpha, out Color32 color)
         {
             text = (text ?? "").Trim().TrimStart('#');
@@ -90,7 +100,14 @@ namespace KingdomContainerColors
                 if (!rgba[i].IsInteger || rgba[i].AsInteger < 0 || rgba[i].AsInteger > 255)
                     return;
             colors.GetValue(deco, _ => new global::KingdomContainerColors.ColorDataEntry()).Color = new Color32((byte)rgba[0].AsInteger, (byte)rgba[1].AsInteger, (byte)rgba[2].AsInteger, (byte)rgba[3].AsInteger);
-            deco.StyleIndex = Mathf.Clamp(deco.StyleIndex, 0, 4);
+            deco.StyleIndex = Mathf.Clamp(deco.StyleIndex, 0, MaxStyleIndex(deco));
+        }
+
+        internal static void SetRaw(WorkspaceObject deco, Color32 color)
+        {
+            if (!Supports(deco))
+                return;
+            colors.GetValue(deco, _ => new global::KingdomContainerColors.ColorDataEntry()).Color = color;
         }
 
         internal static void Set(WorkspaceObject deco, Color32 color)
@@ -119,7 +136,7 @@ namespace KingdomContainerColors
                 return;
             // Never persist a custom sprite index. The unmodified game can ignore
             // this extension and still render a valid native style.
-            json["StyleIndex"] = Mathf.Clamp(deco.StyleIndex, 0, 4);
+            json["StyleIndex"] = Mathf.Clamp(deco.StyleIndex, 0, MaxStyleIndex(deco));
             json[Key] = new JsonObject
             {
                 {

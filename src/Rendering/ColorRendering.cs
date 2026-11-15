@@ -48,21 +48,23 @@ namespace KingdomContainerColors
         static Sprite NeutralFor(UnityEngine.Component world) => FoundationApi.WorkspaceAccess.FromView(world).Label != null ? LabelNeutral : Neutral;
         internal static void EnsurePalette(UnityEngine.Component world)
         {
-            if (!ColorData.Supports(FoundationApi.WorkspaceAccess.FromView(world)) || NeutralFor(world))
+            var item = FoundationApi.WorkspaceAccess.FromView(world);
+            if (!ColorData.Supports(item) || NeutralFor(world))
                 return;
-            int family = FoundationApi.WorkspaceAccess.FromView(world).Label != null ? 1 : 0;
-            var native = ColorData.Palette(FoundationApi.WorkspaceAccess.FromView(world));
+            int family = item.Label != null ? 1 : 0;
             var palette = FoundationApi.Decorations.BackgroundPalette(world);
-            if (palette == null || palette.Length < 5)
+            if (palette == null || palette.Length == 0)
                 return;
-            for (int i = 0; i < 5; i++)
+            var sampled = new Color[palette.Length];
+            int neutralIndex = palette.Length > 1 ? 1 : 0;
+            for (int i = 0; i < palette.Length; i++)
             {
                 var copy = ReadSprite(palette[i]);
-                native[i] = copy.GetPixel(copy.width / 2, copy.height / 2);
-                if (i == 1)
+                sampled[i] = copy.GetPixel(copy.width / 2, copy.height / 2);
+                if (i == neutralIndex)
                 {
                     var pixels = copy.GetPixels32();
-                    var center = copy.GetPixel(copy.width / 2, copy.height / 2);
+                    var center = sampled[i];
                     float level = Mathf.Max(.01f, center.grayscale);
                     for (int j = 0; j < pixels.Length; j++)
                     {
@@ -84,6 +86,7 @@ namespace KingdomContainerColors
                 else
                     global::UnityEngine.Object.Destroy(copy);
             }
+            ColorData.SetPalette(item, sampled);
         }
 
         static Texture2D ReadSprite(Sprite sprite)
@@ -120,6 +123,7 @@ namespace KingdomContainerColors
                 var world = FoundationApi.Decorations.View(tracker.gameObject);
                 if (world)
                     FoundationApi.Decorations.RefreshStyle(world);
+                global::UnityEngine.Object.Destroy(tracker);
             }
 
             if (Neutral)

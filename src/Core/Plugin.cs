@@ -8,10 +8,11 @@ using UnityEngine;
 namespace KingdomContainerColors
 {
     [BepInPlugin(Id, "Container Colors", Version)]
-    [BepInDependency("urakka.kingdominc.foundation", "0.14.0")]
+    [BepInDependency("urakka.kingdominc.foundation", "0.14.4")]
+    [BepInDependency("urakka.kingdominc.undo", BepInDependency.DependencyFlags.SoftDependency)]
     public sealed class Plugin : BaseUnityPlugin
     {
-        public const string Id = "urakka.kingdominc.containercolors", Version = "1.3.1";
+        public const string Id = "urakka.kingdominc.containercolors", Version = "1.3.2";
         FoundationModContext modContext;
         readonly System.Collections.Generic.List<IDisposable> hooks = new System.Collections.Generic.List<IDisposable>();
         void Awake()
@@ -19,6 +20,9 @@ namespace KingdomContainerColors
             modContext = FoundationApi.ForMod(Id);
             ColorResearch.EnsureRegistered(modContext);
             RegisterHooks();
+            var undoHook = UndoIntegration.Register();
+            if (undoHook != null)
+                hooks.Add(undoHook);
             Logger.LogInfo("Container Colors ready: color picker with native save fallback.");
         }
 

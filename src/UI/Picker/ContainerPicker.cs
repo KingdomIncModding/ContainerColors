@@ -73,8 +73,11 @@ namespace KingdomContainerColors
                 button.targetGraphic = image;
                 button.onClick.AddListener(() =>
                 {
-                    Color.RGBToHSV(selected, out hue, out saturation, out brightness);
-                    Commit();
+                    UndoIntegration.RunEdit(() =>
+                    {
+                        Color.RGBToHSV(selected, out hue, out saturation, out brightness);
+                        Commit();
+                    });
                 });
             }
 
@@ -125,8 +128,11 @@ namespace KingdomContainerColors
                 return;
             }
 
-            Color.RGBToHSV(color, out hue, out saturation, out brightness);
-            Commit();
+            UndoIntegration.RunEdit(() =>
+            {
+                Color.RGBToHSV(color, out hue, out saturation, out brightness);
+                Commit();
+            });
         }
 
         TMP_InputField Input(string name, float x, float y, float w, float h)
@@ -263,7 +269,7 @@ namespace KingdomContainerColors
         internal void RefreshFromModel()
         {
             var deco = FoundationApi.Decorations.Current(Popup);
-            Color color = ColorData.TryGet(deco, out var saved) ? (Color)saved : WithAlpha(ColorData.Palette(deco)[Mathf.Clamp(deco.StyleIndex, 0, 4)], deco.Label != null ? 1 : .6f);
+            Color color = ColorData.TryGet(deco, out var saved) ? (Color)saved : WithAlpha(ColorData.Palette(deco)[Mathf.Clamp(deco.StyleIndex, 0, ColorData.MaxStyleIndex(deco))], deco.Label != null ? 1 : .6f);
             Color.RGBToHSV(color, out hue, out saturation, out brightness);
             alpha = color.a;
             Refresh();
@@ -273,9 +279,12 @@ namespace KingdomContainerColors
         {
             if (!ColorResearch.Unlocked)
                 return;
-            ColorData.Clear(FoundationApi.Decorations.Current(Popup));
-            FoundationApi.Decorations.RefreshStyle(FoundationApi.Decorations.CurrentView(Popup));
-            RefreshFromModel();
+            UndoIntegration.RunEdit(() =>
+            {
+                ColorData.Clear(FoundationApi.Decorations.Current(Popup));
+                FoundationApi.Decorations.RefreshStyle(FoundationApi.Decorations.CurrentView(Popup));
+                RefreshFromModel();
+            });
         }
 
         void RestoreInput()
